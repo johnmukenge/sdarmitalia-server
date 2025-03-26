@@ -1,7 +1,10 @@
 const express = require('express');
 const morgan = require('morgan');
-//const usersRouter = require('./routes/usersRoutes');
+const newsRoutes = require('./routes/newsRoutes');
+const contactRoutes = require('./routes/contactRoutes');
 const app = express();
+
+app.use(express.json());
 
 // 1) MIDDLEWARES
 if(process.env.NODE_ENV === 'development') {
@@ -22,6 +25,7 @@ app.use((req, res, next) => {
 });
 
 // 3) ROUTES
-//app.use('/api/v1/users', usersRouter);
+app.use('/api/v1/news', newsRoutes);
+app.use('/api/v1/contact', contactRoutes);
 
 module.exports = app;

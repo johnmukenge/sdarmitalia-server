@@ -9,4 +9,4 @@ const EventSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now }
 });
 
-module.exports = mongoose.model('Event', EventSchema);
+module.exports = mongoose.model('Event', EventSchema, 'events');

@@ -1,22 +1,22 @@
-const Contact = require('../models/contactModel');
+const Conferenza = require('../models/conferenzaModel');
 const APIFeatures = require('../utils/apiFeatures');
 
-const getAllContacts = async (req, res) => {
+const getAllRegistrations = async (req, res) => {
     try {
         // Execute the query
-        const features = new APIFeatures(Contact.find(), req.query)
+        const features = new APIFeatures(Conferenza.find(), req.query)
                             .filter()
                             .sort()
                             .limitFields()
                             .paginate();
-        const contacts = await features.query;
+        const registrazioni = await features.query;
 
         // Send the response
         res.status(200).json({
             status: 'success',
-            results: contacts.length,
+            results: registrazioni.length,
             data: {
-                contacts: contacts,
+                registrazioni,
             },
         });
     } catch (error) {
@@ -26,13 +26,13 @@ const getAllContacts = async (req, res) => {
         });
     }
 };
-const getContact = async (req, res) => {
+const getRegistration = async (req, res) => {
     try {
-        const contact = await Contact.findById(req.params.id);
+        const registrazione = await Conferenza.findById(req.params.id);
         res.status(200).json({
             status: 'success',
             data: {
-                contact,
+                registrazione: registrazione,
             },
         });
     } catch (error) {
@@ -42,14 +42,13 @@ const getContact = async (req, res) => {
         });
     }
 };
-const createContact = async (req, res) => {
+const createRegistration = async (req, res) => {
     try {
-        console.log(req.body);
-        const contact = await Contact.create(req.body);
+        const registrazione = await Conferenza.create(req.body);
         res.status(201).json({
             status: 'success',
             data: {
-                contact: contact,
+                registrazione: registrazione,
             },
         });
     } catch (error) {
@@ -59,9 +58,9 @@ const createContact = async (req, res) => {
         });
     }
 };
-const updateContact = async (req, res) => {
+const updateRegistration = async (req, res) => {
     try {
-        const contact = await Contact
+        const registration = await Conferenza
             .findByIdAndUpdate(req.params.id, req.body, {
                 new: true,
                 runValidators: true,
@@ -69,7 +68,7 @@ const updateContact = async (req, res) => {
         res.status(200).json({
             status: 'success',
             data: {
-                contact,
+                registration: registration,
             },
         });
     }
@@ -81,9 +80,9 @@ const updateContact = async (req, res) => {
     }
     
 };
-const deleteContact = async (req, res) => {
+const deleteRegistration = async (req, res) => {
     try {
-        await Contact.findByIdAndDelete(req.params.id);
+        await Conferenza.findByIdAndDelete(req.params.id);
         res.status(204).json({
             status: 'success',
             data: null,
@@ -97,9 +96,9 @@ const deleteContact = async (req, res) => {
 };
 
 module.exports = {
-    getAllContacts,
-    getContact,
-    createContact,
-    updateContact,
-    deleteContact,
+    getAllRegistrations,
+    getRegistration,
+    createRegistration,
+    updateRegistration,
+    deleteRegistration,
 };

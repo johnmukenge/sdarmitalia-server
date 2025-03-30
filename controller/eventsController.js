@@ -1,22 +1,22 @@
-const Contact = require('../models/contactModel');
-const APIFeatures = require('../utils/apiFeatures');
+const Eventi = require('./../models/eventiModel');
+const APIFeatures = require('./../utils/apiFeatures');
 
-const getAllContacts = async (req, res) => {
+const getAllEvents = async (req, res) => {
     try {
         // Execute the query
-        const features = new APIFeatures(Contact.find(), req.query)
+        const features = new APIFeatures(Eventi.find(), req.query)
                             .filter()
                             .sort()
                             .limitFields()
                             .paginate();
-        const contacts = await features.query;
+        const eventi = await features.query;
 
         // Send the response
         res.status(200).json({
             status: 'success',
-            results: contacts.length,
+            results: eventi.length,
             data: {
-                contacts: contacts,
+                eventi,
             },
         });
     } catch (error) {
@@ -26,13 +26,13 @@ const getAllContacts = async (req, res) => {
         });
     }
 };
-const getContact = async (req, res) => {
+const getEvent = async (req, res) => {
     try {
-        const contact = await Contact.findById(req.params.id);
+        const eventi = await Eventi.findById(req.params.id);
         res.status(200).json({
             status: 'success',
             data: {
-                contact,
+                eventi,
             },
         });
     } catch (error) {
@@ -42,26 +42,25 @@ const getContact = async (req, res) => {
         });
     }
 };
-const createContact = async (req, res) => {
+const createEvent = async (req, res) => {
     try {
-        console.log(req.body);
-        const contact = await Contact.create(req.body);
+        const eventi = await Eventi.create(req.body);
         res.status(201).json({
             status: 'success',
             data: {
-                contact: contact,
+                eventi: eventi,
             },
         });
     } catch (error) {
         res.status(400).json({
             status: 'fail',
-            message: error.message,
+            message: 'Invalid data received',
         });
     }
 };
-const updateContact = async (req, res) => {
+const updateEvent = async (req, res) => {
     try {
-        const contact = await Contact
+        const eventi = await Eventi
             .findByIdAndUpdate(req.params.id, req.body, {
                 new: true,
                 runValidators: true,
@@ -69,7 +68,7 @@ const updateContact = async (req, res) => {
         res.status(200).json({
             status: 'success',
             data: {
-                contact,
+                eventi,
             },
         });
     }
@@ -81,9 +80,9 @@ const updateContact = async (req, res) => {
     }
     
 };
-const deleteContact = async (req, res) => {
+const deleteEvent = async (req, res) => {
     try {
-        await Contact.findByIdAndDelete(req.params.id);
+        await Eventi.findByIdAndDelete(req.params.id);
         res.status(204).json({
             status: 'success',
             data: null,
@@ -97,9 +96,9 @@ const deleteContact = async (req, res) => {
 };
 
 module.exports = {
-    getAllContacts,
-    getContact,
-    createContact,
-    updateContact,
-    deleteContact,
+    getAllEvents,
+    getEvent,
+    createEvent,
+    updateEvent,
+    deleteEvent,
 };

@@ -1,9 +1,13 @@
 const express = require('express');
 const morgan = require('morgan');
+const cors = require('cors');
 const newsRoutes = require('./routes/newsRoutes');
 const contactRoutes = require('./routes/contactRoutes');
+const conferenzaRoutes = require('./routes/conferenzaRoutes');
 const app = express();
 
+// ✅ Enable CORS for all origins
+app.use(cors());
 app.use(express.json());
 
 // 1) MIDDLEWARES
@@ -27,5 +31,6 @@ app.use((req, res, next) => {
 // 3) ROUTES
 app.use('/api/v1/news', newsRoutes);
 app.use('/api/v1/contact', contactRoutes);
+app.use('/api/v1/registration', conferenzaRoutes);
 
 module.exports = app;

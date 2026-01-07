@@ -6,6 +6,7 @@ const {
     getRegistration, 
     updateRegistration, 
     deleteRegistration,
+    getMember,
 } = require('../controller/conferenzaController');
 
 
@@ -19,5 +20,8 @@ conferenzaRoutes.route('/:id')
     .get(getRegistration)
     .patch(updateRegistration)
     .delete(deleteRegistration);
+
+conferenzaRoutes.route('/:nome')
+    .get(getMember);
 
 module.exports = conferenzaRoutes;

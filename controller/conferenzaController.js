@@ -42,6 +42,22 @@ const getRegistration = async (req, res) => {
         });
     }
 };
+const getMember = async (req, res) => {
+    try {
+        const registrazione = await Conferenza.findById(req.params.nome);
+        res.status(200).json({
+            status: 'success',
+            data: {
+                registrazione: registrazione,
+            },
+        });
+    } catch (error) {
+        res.status(404).json({
+            status: 'fail',
+            message: error,
+        });
+    }
+};
 const createRegistration = async (req, res) => {
     try {
         const registrazione = await Conferenza.create(req.body);
@@ -101,4 +117,5 @@ module.exports = {
     createRegistration,
     updateRegistration,
     deleteRegistration,
+    getMember,
 };

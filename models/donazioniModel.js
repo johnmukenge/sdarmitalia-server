@@ -81,7 +81,6 @@ const DonazioneSchema = new mongoose.Schema(
         },
         message: 'Invalid email format',
       },
-      index: true,
     },
 
     nome: {

@@ -56,6 +56,28 @@ router.get('/recent', donazioniController.getRecentDonations);
  */
 router.get('/stats', donazioniController.getDonationStats);
 
+/**
+ * Get transaction logs for a specific date
+ * Protected endpoint - admin/development only
+ *
+ * GET /api/donazioni/logs?date=YYYY-MM-DD
+ *
+ * @query {string} [date] - Date in YYYY-MM-DD format (defaults to today)
+ * @returns {200} Array of transactions with statistics
+ */
+router.get('/logs/transactions', donazioniController.getTransactionLogs);
+
+/**
+ * Get transaction statistics for a date
+ * Protected endpoint - admin/development only
+ *
+ * GET /api/donazioni/logs/stats?date=YYYY-MM-DD
+ *
+ * @query {string} [date] - Date in YYYY-MM-DD format (defaults to today)
+ * @returns {200} Transaction statistics
+ */
+router.get('/logs/statistics', donazioniController.getTransactionStats);
+
 // ===== PROTECTED ENDPOINTS WITH SECURITY =====
 
 /**

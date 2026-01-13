@@ -14,6 +14,7 @@
 
 const Stripe = require('stripe');
 const Donazione = require('../models/donazioniModel');
+const transactionLogger = require('../utils/transactionLogger');
 
 // Initialize Stripe with secret key
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
@@ -162,6 +163,28 @@ exports.createPaymentIntent = async (req, res) => {
       dataProcessamento: new Date(),
     });
 
+    // ===== LOG TRANSACTION =====
+    transactionLogger.logPaymentIntent({
+      id: paymentIntent.id,
+      amount: amountInCents,
+      currency: 'eur',
+      status: paymentIntent.status,
+      metadata: { email, nome, categoria },
+    });
+
+    transactionLogger.logDonation({
+      paymentIntentId: paymentIntent.id,
+      donationId: donazione._id,
+      amount: importo,
+      currency: 'EUR',
+      email,
+      name: nome,
+      categoria,
+      anonimo,
+      ricevuta,
+      status: 'processing',
+    });
+
     // ===== RESPONSE =====
 
     res.status(200).json({
@@ -180,8 +203,21 @@ exports.createPaymentIntent = async (req, res) => {
   } catch (error) {
     console.error('❌ Error in createPaymentIntent:', error);
 
+    // ===== LOG TRANSACTION =====
+    transactionLogger.logPaymentError({
+      errorType: error.type || 'unknown_error',
+      message: error.message,
+      email: req.body.email,
+      statusCode: 500,
+    });
+
     // Handle Stripe-specific errors
     if (error.type === 'StripeAuthenticationError') {
+      transactionLogger.logPaymentError({
+        errorType: 'StripeAuthenticationError',
+        message: 'Errore di configurazione pagamento',
+        statusCode: 401,
+      });
       return res.status(401).json({
         success: false,
         message: 'Errore di configurazione pagamento',
@@ -189,6 +225,11 @@ exports.createPaymentIntent = async (req, res) => {
     }
 
     if (error.type === 'StripePermissionError') {
+      transactionLogger.logPaymentError({
+        errorType: 'StripePermissionError',
+        message: 'Non autorizzato',
+        statusCode: 403,
+      });
       return res.status(403).json({
         success: false,
         message: 'Non autorizzato',
@@ -196,6 +237,11 @@ exports.createPaymentIntent = async (req, res) => {
     }
 
     if (error.type === 'StripeInvalidRequestError') {
+      transactionLogger.logPaymentError({
+        errorType: 'StripeInvalidRequestError',
+        message: error.message,
+        statusCode: 400,
+      });
       return res.status(400).json({
         success: false,
         message: error.message,
@@ -263,22 +309,47 @@ exports.confirmPayment = async (req, res) => {
         });
       }
 
+      // ===== LOG TRANSACTION =====
+      transactionLogger.logPaymentConfirmation({
+        paymentIntentId,
+        donationId: donazione._id,
+        status: 'succeeded',
+        amount: donazione.importo,
+        currency: 'EUR',
+      });
+
       return res.status(200).json({
         success: true,
         message: 'Donazione confermata',
         donation: {
           id: donazione._id,
-          amount: (donazione.importo / 100).toFixed(2),
+          amount: donazione.importo.toFixed(2),
           status: donazione.status,
           recipientName: donazione.anonimo ? 'Anonimo' : donazione.nome,
         },
       });
     } else if (paymentIntent.status === 'requires_action') {
+      // ===== LOG TRANSACTION =====
+      transactionLogger.logPaymentError({
+        paymentIntentId,
+        errorType: 'requires_action',
+        message: 'Azione aggiuntiva richiesta',
+        statusCode: 400,
+      });
+
       return res.status(400).json({
         success: false,
         message: 'Azione aggiuntiva richiesta',
       });
     } else {
+      // ===== LOG TRANSACTION =====
+      transactionLogger.logPaymentError({
+        paymentIntentId,
+        errorType: 'payment_failed',
+        message: `Stato pagamento: ${paymentIntent.status}`,
+        statusCode: 400,
+      });
+
       return res.status(400).json({
         success: false,
         message: `Stato pagamento: ${paymentIntent.status}`,
@@ -286,6 +357,14 @@ exports.confirmPayment = async (req, res) => {
     }
   } catch (error) {
     console.error('❌ Error in confirmPayment:', error);
+
+    // ===== LOG TRANSACTION =====
+    transactionLogger.logPaymentError({
+      errorType: 'server_error',
+      message: error.message,
+      statusCode: 500,
+    });
+
     res.status(500).json({
       success: false,
       message: 'Errore nella conferma del pagamento',
@@ -540,5 +619,87 @@ function maskIBAN(iban) {
   if (!iban || iban.length < 4) return '****';
   return `****${iban.slice(-4)}`;
 }
+
+/**
+ * Get transaction logs for a specific date
+ *
+ * GET /api/donazioni/logs?date=YYYY-MM-DD
+ *
+ * @param {Object} req - Express request object
+ * @param {string} [req.query.date] - Date in YYYY-MM-DD format (defaults to today)
+ * @returns {200} Array of transactions for the date
+ */
+exports.getTransactionLogs = async (req, res) => {
+  try {
+    const { date } = req.query;
+
+    // Validate date format if provided
+    if (date && !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid date format. Use YYYY-MM-DD',
+      });
+    }
+
+    const transactions = transactionLogger.readDayTransactions(date);
+    const stats = transactionLogger.getTransactionStats(date);
+    const logDate = date || transactionLogger.getDateForFilename();
+
+    res.status(200).json({
+      success: true,
+      date: logDate,
+      statistics: stats,
+      transactions,
+      logsDirectory: transactionLogger.getLogsDir(),
+    });
+  } catch (error) {
+    console.error('❌ Error in getTransactionLogs:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Errore nel recupero dei log',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined,
+    });
+  }
+};
+
+/**
+ * Get transaction statistics for a date
+ *
+ * GET /api/donazioni/logs/stats?date=YYYY-MM-DD
+ *
+ * @param {Object} req - Express request object
+ * @param {string} [req.query.date] - Date in YYYY-MM-DD format (defaults to today)
+ * @returns {200} Transaction statistics
+ */
+exports.getTransactionStats = async (req, res) => {
+  try {
+    const { date } = req.query;
+
+    // Validate date format if provided
+    if (date && !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid date format. Use YYYY-MM-DD',
+      });
+    }
+
+    const stats = transactionLogger.getTransactionStats(date);
+    const logDate = date || transactionLogger.getDateForFilename();
+
+    res.status(200).json({
+      success: true,
+      date: logDate,
+      statistics: stats,
+      logsDirectory: transactionLogger.getLogsDir(),
+    });
+  } catch (error) {
+    console.error('❌ Error in getTransactionStats:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Errore nel recupero delle statistiche',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined,
+    });
+  }
+};
 
 module.exports = exports;

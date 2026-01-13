@@ -149,7 +149,7 @@ exports.createPaymentIntent = async (req, res) => {
     // ===== CREATE DONATION RECORD IN DATABASE =====
 
     const donazione = await Donazione.create({
-      importo: amountInCents,
+      importo: importo, // Mantieni in euro nel database
       email: email.toLowerCase(),
       nome: nome.trim(),
       telefono: telefono ? telefono.trim() : undefined,

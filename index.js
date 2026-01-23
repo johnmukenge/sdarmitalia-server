@@ -14,10 +14,13 @@ const app = express();
 app.use(cors());
 
 // ⚠️ IMPORTANT: Webhook route MUST be before body parser for raw body access
+// Middleware to capture raw body for webhook signature verification
 app.use(
   '/api/donazioni/webhook',
+  (req, res, buffer, encoding) => {
+    req.rawBody = buffer.toString(encoding || 'utf8');
+  },
   express.raw({ type: 'application/json' }),
-  donazioniRoutes,
 );
 
 // Parse JSON body after webhook route

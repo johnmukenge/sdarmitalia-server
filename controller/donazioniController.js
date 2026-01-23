@@ -295,7 +295,7 @@ exports.confirmPayment = async (req, res) => {
         { stripePaymentIntentId: paymentIntentId },
         {
           status: 'completed',
-          stripeChargeId: paymentIntent.charges.data[0]?.id,
+          stripeChargeId: paymentIntent.charges?.data?.[0]?.id || null,
           dataPagamento: new Date(),
           dataProcessamento: new Date(),
         },
@@ -323,7 +323,7 @@ exports.confirmPayment = async (req, res) => {
         message: 'Donazione confermata',
         donation: {
           id: donazione._id,
-          amount: donazione.importo.toFixed(2),
+          amount: parseFloat(donazione.importo).toFixed(2),
           status: donazione.status,
           recipientName: donazione.anonimo ? 'Anonimo' : donazione.nome,
         },
@@ -441,12 +441,12 @@ exports.getDonationStats = async (req, res) => {
       success: true,
       data: {
         ...stats,
-        totalDonationsFormatted: `€${(stats.totalDonations / 100).toFixed(2)}`,
-        averageDonationFormatted: `€${(stats.averageDonation / 100).toFixed(2)}`,
+        totalDonationsFormatted: `€${parseFloat(stats.totalDonations).toFixed(2)}`,
+        averageDonationFormatted: `€${parseFloat(stats.averageDonation).toFixed(2)}`,
         byCategory: Object.entries(stats.byCategory).map(
           ([category, data]) => ({
             category,
-            total: `€${(data.total / 100).toFixed(2)}`,
+            total: `€${parseFloat(data.total).toFixed(2)}`,
             count: data.count,
           }),
         ),

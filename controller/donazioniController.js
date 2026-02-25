@@ -134,7 +134,11 @@ exports.createPaymentIntent = async (req, res) => {
     const paymentIntent = await stripe.paymentIntents.create({
       amount: amountInCents,
       currency: 'eur',
-      payment_method_types: ['card'],
+      // Enable multiple payment methods for lower fees
+      payment_method_types: [
+        'card',           // 1.5% + €0.25 (EU cards) - Sempre disponibile
+        'sepa_debit',     // €0.35 fixed - Molto più economico per importi alti!
+      ],
       metadata: {
         email,
         nome,

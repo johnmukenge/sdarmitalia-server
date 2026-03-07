@@ -51,6 +51,41 @@ router.get('/top-downloads', libriController.getLibriTopDownloads);
 router.get('/stats', libriController.getLibriStats);
 
 /**
+ * @route GET /api/v1/libri/statistics/views
+ * @desc Recupera statistiche views sui libri
+ * @example
+ * GET /api/v1/libri/statistics/views
+ */
+router.get('/statistics/views', libriController.getViewsStatistics);
+
+/**
+ * @route GET /api/v1/libri/lezionari
+ * @desc Recupera Lezionari filtrati per anno e trimestre
+ * @query {number} anno - Anno (opzionale)
+ * @query {number} trimestre - Trimestre 1-4 (opzionale)
+ * @example
+ * GET /api/v1/libri/lezionari?anno=2026&trimestre=1
+ */
+router.get('/lezionari', libriController.getLezionari);
+
+/**
+ * @route GET /api/v1/libri/settimane-preghiera
+ * @desc Recupera Settimane di Preghiera filtrate per anno
+ * @query {number} anno - Anno (opzionale)
+ * @example
+ * GET /api/v1/libri/settimane-preghiera?anno=2025
+ */
+router.get('/settimane-preghiera', libriController.getSettimanePreghiera);
+
+/**
+ * @route GET /api/v1/libri/anni-disponibili
+ * @desc Recupera gli anni disponibili per Lezionari e Settimane
+ * @example
+ * GET /api/v1/libri/anni-disponibili
+ */
+router.get('/anni-disponibili', libriController.getAnniDisponibili);
+
+/**
  * @route GET /api/v1/libri/search
  * @desc Esegue ricerca full-text nei libri
  * @query {string} q - Query di ricerca (required)
@@ -106,6 +141,15 @@ router.patch('/:id', libriController.updateLibro);
  * POST /api/v1/libri/507f1f77bcf86cd799439011/download
  */
 router.post('/:id/download', libriController.downloadLibro);
+
+/**
+ * @route PATCH /api/v1/libri/:id/views
+ * @desc Incrementa il contatore di views per un libro
+ * @param {string} id - ID libro
+ * @example
+ * PATCH /api/v1/libri/507f1f77bcf86cd799439011/views
+ */
+router.patch('/:id/views', libriController.incrementLibroViews);
 
 /**
  * @route DELETE /api/v1/libri/:id

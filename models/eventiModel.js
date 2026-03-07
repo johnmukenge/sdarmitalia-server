@@ -171,6 +171,13 @@ const EventSchema = new mongoose.Schema(
       // Could validate as email or phone
     },
 
+    // Engagement metrics
+    views: {
+      type: Number,
+      default: 0,
+      min: [0, 'Views cannot be negative'],
+    },
+
     // Timestamps
     createdAt: {
       type: Date,
@@ -291,6 +298,22 @@ EventSchema.methods.hasAvailability = function (needed = 1) {
 EventSchema.methods.getRemainingCapacity = function () {
   if (!this.capacity) return null;
   return Math.max(0, this.capacity - this.registrations);
+};
+
+/**
+ * Instance method to increment view counter
+ *
+ * @method incrementViews
+ * @async
+ * @returns {Promise<Object>} Updated document
+ *
+ * @example
+ * const event = await Event.findById(id);
+ * await event.incrementViews();
+ */
+EventSchema.methods.incrementViews = function () {
+  this.views = (this.views || 0) + 1;
+  return this.save();
 };
 
 /**

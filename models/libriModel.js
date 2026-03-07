@@ -88,6 +88,8 @@ const LibroSchema = new mongoose.Schema(
         'giovani',
         'adulti',
         'bambini',
+        'lezionario',
+        'settimana_preghiera',
         'altro',
       ],
       required: [true, 'Category is required'],
@@ -127,6 +129,18 @@ const LibroSchema = new mongoose.Schema(
       type: String,
       required: [true, 'File path is required'],
       trim: true,
+    },
+
+    fileUrl: {
+      type: String,
+      trim: true,
+      validate: {
+        validator: function (url) {
+          if (!url) return true; // Optional field
+          return /^https?:\/\/.+/.test(url);
+        },
+        message: 'File URL must be a valid HTTP/HTTPS URL',
+      },
     },
 
     fileSize: {
@@ -176,6 +190,39 @@ const LibroSchema = new mongoose.Schema(
       min: [1, 'Pages must be at least 1'],
     },
 
+    // Campi specifici per Lezionari e Settimane di Preghiera
+    anno: {
+      type: Number,
+      min: [2000, 'Anno must be at least 2000'],
+      max: [2100, 'Anno cannot exceed 2100'],
+      validate: {
+        validator: function (value) {
+          // anno è richiesto solo per lezionario e settimana_preghiera
+          if (['lezionario', 'settimana_preghiera'].includes(this.category)) {
+            return value != null;
+          }
+          return true;
+        },
+        message: 'Anno is required for Lezionari and Settimane di Preghiera',
+      },
+    },
+
+    trimestre: {
+      type: Number,
+      enum: [1, 2, 3, 4],
+      validate: {
+        validator: function (value) {
+          // trimestre è richiesto solo per lezionario
+          if (this.category === 'lezionario') {
+            return value != null;
+          }
+          // se specificato per altre categorie, deve essere valido
+          return true;
+        },
+        message: 'Trimestre (1-4) is required for Lezionari',
+      },
+    },
+
     // Engagement metrics
     rating: {
       type: Number,
@@ -195,6 +242,12 @@ const LibroSchema = new mongoose.Schema(
       type: Number,
       default: 0,
       min: [0, 'Downloads cannot be negative'],
+    },
+
+    views: {
+      type: Number,
+      default: 0,
+      min: [0, 'Views cannot be negative'],
     },
 
     // Visibility and status
@@ -257,6 +310,22 @@ LibroSchema.pre('save', function (next) {
  */
 LibroSchema.methods.incrementDownloads = function (count = 1) {
   this.downloads = (this.downloads || 0) + count;
+  return this.save();
+};
+
+/**
+ * Instance method to increment view counter
+ *
+ * @method incrementViews
+ * @async
+ * @returns {Promise<Object>} Updated document
+ *
+ * @example
+ * const libro = await Libro.findById(id);
+ * await libro.incrementViews();
+ */
+LibroSchema.methods.incrementViews = function () {
+  this.views = (this.views || 0) + 1;
   return this.save();
 };
 
@@ -502,6 +571,65 @@ LibroSchema.statics.getStats = async function () {
 };
 
 /**
+ * Get Lezionari filtered by anno and trimestre
+ *
+ * @static
+ * @method getLezionari
+ * @param {number} anno - Year (optional)
+ * @param {number} trimestre - Quarter 1-4 (optional)
+ * @returns {Promise<Array>} Matching Lezionari
+ */
+LibroSchema.statics.getLezionari = function (anno, trimestre) {
+  const query = {
+    category: 'lezionario',
+    status: 'published',
+    isPublic: true,
+  };
+  
+  if (anno) query.anno = anno;
+  if (trimestre) query.trimestre = trimestre;
+  
+  return this.find(query).sort({ anno: -1, trimestre: -1 });
+};
+
+/**
+ * Get Settimane di Preghiera filtered by anno
+ *
+ * @static
+ * @method getSettimanePreghiera
+ * @param {number} anno - Year (optional)
+ * @returns {Promise<Array>} Matching Settimane di Preghiera
+ */
+LibroSchema.statics.getSettimanePreghiera = function (anno) {
+  const query = {
+    category: 'settimana_preghiera',
+    status: 'published',
+    isPublic: true,
+  };
+  
+  if (anno) query.anno = anno;
+  
+  return this.find(query).sort({ anno: -1 });
+};
+
+/**
+ * Get available years for Lezionari and Settimane
+ *
+ * @static
+ * @method getAnniDisponibili
+ * @returns {Promise<Array>} Array of available years
+ */
+LibroSchema.statics.getAnniDisponibili = async function () {
+  const years = await this.distinct('anno', {
+    category: { $in: ['lezionario', 'settimana_preghiera'] },
+    status: 'published',
+    isPublic: true,
+  });
+  
+  return years.filter(y => y != null).sort((a, b) => b - a);
+};
+
+/**
  * Full-text search index
  */
 LibroSchema.index({
@@ -516,6 +644,7 @@ LibroSchema.index({
  */
 LibroSchema.index({ status: 1, isPublic: 1, featured: -1 });
 LibroSchema.index({ category: 1, status: 1, isPublic: 1 });
+LibroSchema.index({ category: 1, anno: -1, trimestre: -1 }); // Per Lezionari e Settimane
 LibroSchema.index({ rating: -1, ratingCount: -1 });
 LibroSchema.index({ downloads: -1 });
 LibroSchema.index({ createdAt: -1 });

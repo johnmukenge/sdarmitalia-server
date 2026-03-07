@@ -64,7 +64,12 @@ const getAllLibri = async (req, res) => {
  */
 const getLibro = async (req, res) => {
   try {
-    const libro = await Libro.findById(req.params.id);
+    // 📈 Incrementa automaticamente le views quando un libro viene visualizzato
+    const libro = await Libro.findByIdAndUpdate(
+      req.params.id,
+      { $inc: { views: 1 } },
+      { new: true, runValidators: false }
+    );
 
     if (!libro) {
       return res.status(404).json({
@@ -72,6 +77,8 @@ const getLibro = async (req, res) => {
         message: 'Libro non trovato',
       });
     }
+
+    console.log(`📚 Libro "${libro.title}" visualizzato. Total views: ${libro.views}`);
 
     res.status(200).json({
       status: 'success',
@@ -397,6 +404,218 @@ const getLibriStats = async (req, res) => {
   }
 };
 
+/**
+ * Incrementa il conteggio delle visualizzazioni per un libro
+ * @async
+ * @param {Object} req - Express request object
+ * @param {string} req.params.id - Libro ID
+ * @returns {Object} Updated libro document with incremented views
+ */
+const incrementLibroViews = async (req, res) => {
+  try {
+    const libroId = req.params.id;
+    console.log(`📈 Incrementing views for libro: ${libroId}`);
+
+    const libro = await Libro.findByIdAndUpdate(
+      libroId,
+      { $inc: { views: 1 } },
+      { new: true, runValidators: false }
+    );
+
+    if (!libro) {
+      return res.status(404).json({
+        status: 'fail',
+        message: 'Libro non trovato',
+      });
+    }
+
+    console.log(`✅ Views incremented. Total views: ${libro.views}`);
+
+    res.status(200).json({
+      status: 'success',
+      data: {
+        libroId: libro._id,
+        views: libro.views,
+      },
+    });
+  } catch (error) {
+    console.error('Error incrementing views:', error);
+    res.status(500).json({
+      status: 'fail',
+      message: 'Error updating views: ' + error.message,
+    });
+  }
+};
+
+/**
+ * Ottiene le statistiche complete delle visualizzazioni dei libri
+ * @async
+ * @param {Object} req - Express request object
+ * @returns {Object} Statistiche: totale views, media views, libro più visto, etc.
+ */
+const getViewsStatistics = async (req, res) => {
+  try {
+    console.log('📊 Fetching libro views statistics');
+
+    const stats = await Libro.aggregate([
+      {
+        $group: {
+          _id: null,
+          totalViews: { $sum: '$views' },
+          averageViews: { $avg: '$views' },
+          maxViews: { $max: '$views' },
+          minViews: { $min: '$views' },
+          totalLibri: { $sum: 1 },
+        },
+      },
+    ]);
+
+    // Ottieni i libri più visti (top 10)
+    const topLibri = await Libro.find({ status: 'published', isPublic: true })
+      .select('_id title author views category downloads')
+      .sort({ views: -1 })
+      .limit(10);
+
+    // Ottieni statistiche per categoria
+    const categoryStats = await Libro.aggregate([
+      { $match: { status: 'published', isPublic: true } },
+      {
+        $group: {
+          _id: '$category',
+          totalViews: { $sum: '$views' },
+          averageViews: { $avg: '$views' },
+          count: { $sum: 1 },
+        },
+      },
+      { $sort: { totalViews: -1 } },
+    ]);
+
+    const result = {
+      status: 'success',
+      data: {
+        overview: stats[0] || {
+          totalViews: 0,
+          averageViews: 0,
+          maxViews: 0,
+          minViews: 0,
+          totalLibri: 0,
+        },
+        topLibri,
+        categoryStats,
+        timestamp: new Date(),
+      },
+    };
+
+    console.log(
+      `✅ Statistics retrieved. Total views: ${result.data.overview.totalViews}`
+    );
+
+    res.status(200).json(result);
+  } catch (error) {
+    console.error('Error fetching statistics:', error);
+    res.status(500).json({
+      status: 'fail',
+      message: 'Error fetching statistics: ' + error.message,
+    });
+  }
+};
+
+/**
+ * Ottieni Lezionari filtrati per anno e trimestre
+ * @async
+ * @function getLezionari
+ * @param {Object} req - Express request
+ * @param {Object} req.query.anno - Anno (opzionale)
+ * @param {Object} req.query.trimestre - Trimestre 1-4 (opzionale)
+ * @param {Object} res - Express response
+ *
+ * @example
+ * GET /api/v1/libri/lezionari?anno=2026&trimestre=1
+ */
+const getLezionari = async (req, res) => {
+  try {
+    const { anno, trimestre } = req.query;
+    const lezionari = await Libro.getLezionari(
+      anno ? parseInt(anno) : null,
+      trimestre ? parseInt(trimestre) : null
+    );
+
+    res.status(200).json({
+      status: 'success',
+      results: lezionari.length,
+      data: {
+        lezionari,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: 'fail',
+      message: error.message,
+    });
+  }
+};
+
+/**
+ * Ottieni Settimane di Preghiera filtrate per anno
+ * @async
+ * @function getSettimanePreghiera
+ * @param {Object} req - Express request
+ * @param {Object} req.query.anno - Anno (opzionale)
+ * @param {Object} res - Express response
+ *
+ * @example
+ * GET /api/v1/libri/settimane-preghiera?anno=2025
+ */
+const getSettimanePreghiera = async (req, res) => {
+  try {
+    const { anno } = req.query;
+    const settimane = await Libro.getSettimanePreghiera(
+      anno ? parseInt(anno) : null
+    );
+
+    res.status(200).json({
+      status: 'success',
+      results: settimane.length,
+      data: {
+        settimane,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: 'fail',
+      message: error.message,
+    });
+  }
+};
+
+/**
+ * Ottieni gli anni disponibili per Lezionari e Settimane
+ * @async
+ * @function getAnniDisponibili
+ * @param {Object} req - Express request
+ * @param {Object} res - Express response
+ *
+ * @example
+ * GET /api/v1/libri/anni-disponibili
+ */
+const getAnniDisponibili = async (req, res) => {
+  try {
+    const anni = await Libro.getAnniDisponibili();
+
+    res.status(200).json({
+      status: 'success',
+      data: {
+        anni,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: 'fail',
+      message: error.message,
+    });
+  }
+};
+
 module.exports = {
   getAllLibri,
   getLibro,
@@ -409,4 +628,9 @@ module.exports = {
   deleteLibro,
   downloadLibro,
   getLibriStats,
+  incrementLibroViews,
+  getViewsStatistics,
+  getLezionari,
+  getSettimanePreghiera,
+  getAnniDisponibili,
 };

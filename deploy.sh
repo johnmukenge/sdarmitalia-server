@@ -128,6 +128,46 @@ check_prerequisites() {
 }
 
 # ============================================================================
+# FRONTEND DEPLOYMENT
+# ============================================================================
+
+deploy_frontend() {
+    print_header "DEPLOYMENT FRONTEND"
+    
+    if [ ! -d "$FRONTEND_ROOT" ]; then
+        log_warn "Frontend non trovato in $FRONTEND_ROOT"
+        return
+    fi
+    
+    cd "$FRONTEND_ROOT"
+    log_info "Posizione: $(pwd)"
+    
+    # Git pull
+    log_info "Aggiornamento codice frontend..."
+    git fetch origin
+    git reset --hard origin/main
+    log_success "Frontend aggiornato"
+    
+    # npm install e build
+    if [ "$SKIP_INSTALL" != "true" ]; then
+        log_info "Installazione dipendenze frontend..."
+        npm ci
+        log_success "Dipendenze installate"
+        
+        log_info "Build frontend..."
+        npm run build
+        log_success "Build completato"
+        
+        # Verifica che dist/ esista
+        if [ -d "dist" ]; then
+            log_success "Cartella dist/ creata con $(find dist -type f | wc -l) file"
+        else
+            log_error "Cartella dist/ non trovata dopo il build!"
+        fi
+    fi
+}
+
+# ============================================================================
 # BACKEND DEPLOYMENT
 # ============================================================================
 
@@ -349,6 +389,7 @@ main() {
     
     check_prerequisites
     deploy_backend
+    deploy_frontend
     manage_pm2
     configure_nginx
     health_check

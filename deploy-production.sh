@@ -1,13 +1,26 @@
 #!/bin/bash
-# ============================================
-# SDARM ITALIA - PRODUCTION DEPLOYMENT SCRIPT
-# ============================================
-# Run this on adsgmdr.it server to deploy latest changes
+
+################################################################################
+#
+# MOVIMENTO DI RIFORMA ITALIA - PRODUCTION DEPLOYMENT SCRIPT
+# ===========================================================
+#
+# Script per automatizzare il deployment del progetto in PRODUZIONE
+# Dominio: movimentodiriforma.it
+# Supporta: git pull, npm install, pm2 restart, nginx reload
+#
+# Utilizzo:
+#   chmod +x deploy-production.sh
+#   ./deploy-production.sh              # Deploy completo
+#   ./deploy-production.sh --no-install # Deploy senza npm install
+#   ./deploy-production.sh --restart    # Solo restart di pm2
+#
+# Ambiente: Linux/Ubuntu
+# Server: nginx + Node.js + PM2 + MongoDB Atlas
+#
+################################################################################
 
 set -e  # Exit on error
-
-echo "🚀 Starting SDARM Italia Deployment..."
-echo "========================================"
 
 # Colors for output
 GREEN='\033[0;32m'

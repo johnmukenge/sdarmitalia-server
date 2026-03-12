@@ -161,6 +161,18 @@ deploy_frontend() {
         # Verifica che dist/ esista
         if [ -d "dist" ]; then
             log_success "Cartella dist/ creata con $(find dist -type f | wc -l) file"
+            
+            # Copia i file dalla dist/ alla cartella servita da nginx
+            log_info "Copia file in /var/www/adsgmdr/frontend..."
+            mkdir -p /var/www/adsgmdr/frontend
+            rm -rf /var/www/adsgmdr/frontend/*
+            cp -r dist/* /var/www/adsgmdr/frontend/
+            log_success "File copiati in /var/www/adsgmdr/frontend"
+            
+            # Verifica permessi
+            chown -R www-data:www-data /var/www/adsgmdr/frontend
+            chmod -R 755 /var/www/adsgmdr/frontend
+            log_success "Permessi configurati"
         else
             log_error "Cartella dist/ non trovata dopo il build!"
         fi

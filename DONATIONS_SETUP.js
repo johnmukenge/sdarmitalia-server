@@ -71,7 +71,7 @@ CORS_ORIGINS=http://localhost:5173,http://localhost:3000,https://adsgmdr.it
 
 const FRONTEND_ENV = `
 VITE_STRIPE_PUBLIC_KEY=${STRIPE_CREDENTIALS.STRIPE_PUBLIC_KEY}
-VITE_API_URL=http://localhost:5000
+VITE_API_URL=http://localhost:3000
 `;
 
 // STEP 6: START SERVERS

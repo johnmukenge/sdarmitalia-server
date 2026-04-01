@@ -87,7 +87,7 @@ Nel file `.env.local`:
 
 ```
 VITE_STRIPE_PUBLIC_KEY=pk_test_1234567890abcdef...
-VITE_API_URL=http://localhost:5000
+VITE_API_URL=http://localhost:3000
 ```
 
 ---

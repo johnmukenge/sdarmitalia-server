@@ -220,116 +220,117 @@ const contactData = [
  */
 const eventData = [
   {
-    title: 'Culto Domenicale',
-    description:
-      'Celebrazione settimanale con musica, preghiera e insegnamento biblico. Tutti sono benvenuti!',
-    date: new Date(2026, 0, 11, 10, 0), // 11 gennaio 2026, 10:00
-    location: 'Chiesa Principale di Roma, Via del Corso 100',
-    image: 'https://images.unsplash.com/photo-1516542252446-e0e9ad8b0ff0?w=800',
-    capacity: 500,
-    registrations: 350,
+    title: 'Conferenza Maggio 2026',
+    shortDescription: 'Un evento di comunione e crescita spirituale.',
+    description: 'Settimana di incontri, preghiera, musica e studio biblico. Ospiti internazionali, workshop tematici, momenti di lode e comunione.',
+    date: new Date(2026, 4, 10), // 10 maggio 2026
+    endDate: new Date(2026, 4, 12), // 12 maggio 2026
+    location: 'Centro Congressi, Roma',
+    gallery: [
+      { src: '/assets/events/aprile2026/sii tu una benedizione 1.jpeg', caption: 'Sii tu una benedizione: la gioia della comunione fraterna si riflette nei nostri volti.' },
+      { src: '/assets/events/aprile2026/sii tu una benedizione 2.jpeg', caption: 'La presenza di Dio si manifesta dove due o tre sono riuniti nel Suo nome.' },
+      { src: '/assets/events/aprile2026/sii tu una benedizione 3.jpeg', caption: 'Ogni sorriso è un dono che illumina il cuore del prossimo.' },
+      { src: '/assets/events/aprile2026/sii tu una benedizione 4.jpeg', caption: 'La lode e il canto elevano lo spirito e uniscono la comunità.' },
+      { src: '/assets/events/aprile2026/sii tu una benedizione 5.jpeg', caption: 'Insieme, come famiglia spirituale, cresciamo nella fede e nell’amore.' },
+      { src: '/assets/events/aprile2026/sii tu una benedizione 6.jpeg', caption: 'La Parola condivisa accende nuove speranze e rafforza la nostra missione.' },
+      { src: '/assets/events/aprile2026/sii tu una benedizione 7.jpeg', caption: 'La preghiera ci unisce e ci rende strumenti di pace.' },
+      { src: '/assets/events/aprile2026/sii tu una benedizione 8.jpeg', caption: 'Ogni incontro è un’opportunità per testimoniare la grazia di Cristo.' },
+      { src: '/assets/events/aprile2026/sii tu una benedizione 9.jpeg', caption: 'La benedizione si moltiplica quando viene condivisa con gioia.' },
+      { src: '/assets/events/aprile2026/sii tu una benedizione 10.jpeg', caption: 'Ringraziamo il Signore per ogni momento vissuto insieme nella Sua presenza.' }
+    ],
+    tags: ['conferenza', 'spiritualità', 'comunione'],
+    organizer: 'SDA Italia',
     status: 'scheduled',
+    featured: true
+  },
+  {
+    title: 'Culto Domenicale',
+    shortDescription: 'Celebrazione settimanale con musica, preghiera e insegnamento biblico.',
+    description: 'Tutti sono benvenuti! Ogni domenica alle 10:00 presso la Chiesa Principale di Roma.',
+    date: new Date(2026, 5, 7, 10, 0), // 7 giugno 2026
+    location: 'Chiesa Principale di Roma, Via del Corso 100',
+    gallery: [
+      { src: '/assets/events/culto/culto1.jpg', caption: 'Momento di preghiera durante il culto.' },
+      { src: '/assets/events/culto/culto2.jpg', caption: 'Coro della comunità in azione.' }
+    ],
     tags: ['culto', 'settimanale', 'preghiera'],
     organizer: 'Pastore Giuseppe',
-    contact: 'info@sdaitalia.it',
-  },
-  {
-    title: 'Conferenza Annuale SDA Italia 2026',
-    description:
-      'Una settimana di insegnamenti intensi, fellowship e celebrazione. Ospitiamo oratori internazionali.',
-    date: new Date(2026, 6, 15, 9, 0), // 15 luglio 2026, 09:00
-    endDate: new Date(2026, 6, 22, 17, 0), // 22 luglio 2026, 17:00
-    location: 'Centro Congressi Milano, Piazza Duomo 1',
-    image: 'https://images.unsplash.com/photo-1505228395891-9a51e7e86e81?w=800',
-    capacity: 1000,
-    registrations: 478,
     status: 'scheduled',
-    tags: ['conferenza', 'insegnamento', 'fellowship'],
-    organizer: 'SDA Italia',
-    contact: 'conference@sdaitalia.it',
-  },
-  {
-    title: 'Studi Biblici Settimanali',
-    description:
-      'Studio approfondito della Bibbia con discussioni guidate. Livello intermedio.',
-    date: new Date(2026, 0, 14, 19, 30), // 14 gennaio 2026, 19:30
-    location: 'Sala Studio, Via Roma 50',
-    capacity: 80,
-    registrations: 52,
-    status: 'scheduled',
-    tags: ['bibbia', 'studio', 'discussione'],
-    organizer: 'Fratello David',
-    contact: 'study@sdaitalia.it',
+    featured: false
   },
   {
     title: 'Campeggio Giovani Primavera',
-    description:
-      'Tre giorni di divertimento, attività ricreative e crescita spirituale per ragazzi e ragazze.',
-    date: new Date(2026, 3, 10, 8, 0), // 10 aprile 2026, 08:00
-    endDate: new Date(2026, 3, 13, 17, 0), // 13 aprile 2026, 17:00
+    shortDescription: 'Tre giorni di divertimento e crescita spirituale per ragazzi e ragazze.',
+    description: 'Attività ricreative, giochi, studi biblici e momenti di comunione immersi nella natura.',
+    date: new Date(2026, 6, 15, 8, 0), // 15 luglio 2026
+    endDate: new Date(2026, 6, 18, 17, 0), // 18 luglio 2026
     location: 'Campeggio del Lago, Via della Natura 20',
-    image: 'https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?w=800',
-    capacity: 150,
-    registrations: 89,
-    status: 'scheduled',
+    gallery: [
+      { src: '/assets/events/campeggio/campeggio1.jpg', caption: 'Giochi di gruppo all’aperto.' },
+      { src: '/assets/events/campeggio/campeggio2.jpg', caption: 'Momenti di riflessione e preghiera.' }
+    ],
     tags: ['giovani', 'campeggio', 'divertimento'],
     organizer: 'Coordinatore Giovani',
-    contact: 'youth@sdaitalia.it',
+    status: 'scheduled',
+    featured: false
   },
   {
     title: 'Seminario sulla Salute Olistica',
-    description:
-      'Imparare come prendersi cura della salute fisica, mentale e spirituale.',
-    date: new Date(2026, 1, 1, 14, 0), // 1 febbraio 2026, 14:00
+    shortDescription: 'Imparare come prendersi cura della salute fisica, mentale e spirituale.',
+    description: 'Esperti condivideranno consigli pratici per una vita più consapevole e felice.',
+    date: new Date(2026, 7, 2, 14, 0), // 2 agosto 2026
     location: 'Centro Wellness, Via della Salute 15',
-    capacity: 120,
-    registrations: 76,
-    status: 'scheduled',
+    gallery: [
+      { src: '/assets/events/salute/salute1.jpg', caption: 'Sessione di gruppo sul benessere.' }
+    ],
     tags: ['salute', 'benessere', 'seminario'],
     organizer: 'Dott. Marco',
-    contact: 'health@sdaitalia.it',
+    status: 'scheduled',
+    featured: false
   },
   {
     title: 'Raccolta Fondi Charity Dinner',
-    description:
-      'Cena di beneficenza per sostenere il progetto missionario in Africa. Musica dal vivo inclusa.',
-    date: new Date(2026, 1, 28, 19, 0), // 28 febbraio 2026, 19:00
+    shortDescription: 'Cena di beneficenza per sostenere il progetto missionario in Africa.',
+    description: 'Musica dal vivo, testimonianze e raccolta fondi per progetti missionari.',
+    date: new Date(2026, 8, 20, 19, 0), // 20 settembre 2026
     location: 'Ristorante Italia Palace, Piazza Venezia 5',
-    image: 'https://images.unsplash.com/photo-1519671482749-fd09be7ccebf?w=800',
-    capacity: 200,
-    registrations: 145,
-    status: 'scheduled',
+    gallery: [
+      { src: '/assets/events/charity/charity1.jpg', caption: 'Cena di beneficenza con la comunità.' }
+    ],
     tags: ['carità', 'raccoltaffondi', 'cena'],
     organizer: 'Comitato Missioni',
-    contact: 'missions@sdaitalia.it',
+    status: 'scheduled',
+    featured: false
   },
   {
     title: 'Lezioni di Pianoforte Cristiano',
-    description:
-      'Lezioni settimanali per imparare a suonare musica cristiana al pianoforte.',
-    date: new Date(2026, 0, 20, 16, 0), // 20 gennaio 2026, 16:00
+    shortDescription: 'Lezioni settimanali per imparare a suonare musica cristiana al pianoforte.',
+    description: 'Aperte a tutti i livelli. Ogni martedì alle 16:00.',
+    date: new Date(2026, 9, 6, 16, 0), // 6 ottobre 2026
     location: 'Sala Musica, Via della Musica 30',
-    capacity: 30,
-    registrations: 22,
-    status: 'scheduled',
+    gallery: [
+      { src: '/assets/events/pianoforte/piano1.jpg', caption: 'Lezione di pianoforte in corso.' }
+    ],
     tags: ['musica', 'lezioni', 'pianoforte'],
     organizer: 'Maestro Giulio',
-    contact: 'music@sdaitalia.it',
+    status: 'scheduled',
+    featured: false
   },
   {
     title: 'Visita Missionaria in Africa',
-    description:
-      'Viaggio di due settimane per servire nelle comunità locali e visitare i progetti missionari.',
-    date: new Date(2026, 5, 1, 6, 0), // 1 giugno 2026, 06:00
-    endDate: new Date(2026, 5, 15, 20, 0), // 15 giugno 2026, 20:00
+    shortDescription: 'Viaggio di due settimane per servire nelle comunità locali.',
+    description: 'Visita ai progetti missionari, attività di volontariato e supporto alle famiglie.',
+    date: new Date(2026, 10, 10, 6, 0), // 10 novembre 2026
+    endDate: new Date(2026, 10, 24, 20, 0), // 24 novembre 2026
     location: 'Tanzania - Africa',
-    capacity: 50,
-    registrations: 23,
-    status: 'scheduled',
+    gallery: [
+      { src: '/assets/events/missioni/missione1.jpg', caption: 'Volontari in azione in Africa.' }
+    ],
     tags: ['missioni', 'viaggio', 'africa'],
     organizer: 'Coordinatore Missioni',
-    contact: 'missions@sdaitalia.it',
-  },
+    status: 'scheduled',
+    featured: false
+  }
 ];
 
 /**
